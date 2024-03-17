@@ -2,50 +2,47 @@
 #include "threadpool.h"
 
 
-Threadpool::Threadpool(int thread_num) : thread_num_(thread_num)
-{
-    std::unique_lock<std::mutex> lk(lock_);
-    is_active_ = true;
-    for(int i = 0; i < thread_num; i++) {
-        threads_.emplace_back(std::thread (&Threadpool::work_thread,this));
-    }
-}
-
 Threadpool::~Threadpool()
 {
-    this->shutdown();
+    if (is_active_) 
+        this->shutdown();
 }
-bool Threadpool::submit(void (*fuc)(void *,void **), void *argc, void *argv[])
+
+void Threadpool::init_on()
 {
-    if(!is_active_) 
-        return false;
-    works_.push(function_class {fuc,argc,argv});
-    condition_.notify_one();
-    return true;
+    is_active_.store(true);
+    for(int i = 0; i < thread_num_; i++) {
+        threads_.emplace_back(std::thread(&Threadpool::worker,this));
+    }
 }
 
 void Threadpool::shutdown()
 {
-    lock_.lock();
-    is_active_ = false;
-    lock_.unlock();
+    is_active_.store(false);
+    condition_.notify_all();
     for(int i = 0; i < thread_num_; i++) {
         threads_[i].join();
     }
+    threads_.clear();
 }
 
-void Threadpool::work_thread()
+void Threadpool::worker()
 {
-    while (!works_.empty() || is_active_)
-    {   
-        function_class mfucs{nullptr,nullptr,nullptr};
+    while (is_active_.load() || !works_.empty())
+    {
+        std::function<void ()> task;
+        bool ret = false;
         {
-            std::unique_lock<std::mutex> lc(lock_);
-            if(works_.empty()) {
-                condition_.wait(lc);
+            std::unique_lock<std::mutex> lk(lock_);
+            if(!works_.empty()) {
+                ret = works_.pop(task);
+            } else {
+                if(!is_active_)
+                    break;
+                condition_.wait(lk);
             }
-            mfucs = works_.pop();
         }
-        mfucs.func(mfucs.argc,mfucs.argv);
+        if(ret)
+            task();
     }
 }

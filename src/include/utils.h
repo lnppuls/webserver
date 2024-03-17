@@ -11,15 +11,17 @@ class safe_queue
 public:
     safe_queue() { }
     ~safe_queue() { }
-    void push(T t) {
+    void push(T &t) {
         std::unique_lock<std::mutex> lock_gruad(lock_);
-        data_.push(t);
+        data_.emplace(t);
     }
-    T pop() {
+    bool pop(T &t) {
         std::unique_lock<std::mutex> lock_gruad(lock_);
-        T res = data_.back();
+        if(data_.empty())
+            return false;
+        t = std::move(data_.front());
         data_.pop();
-        return res;
+        return true;
     }
     int size() {
         std::unique_lock<std::mutex> lock_gruad(lock_);
