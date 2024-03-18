@@ -7,6 +7,7 @@ using namespace std;
 
 void printfuc(int s){
     cout << s << std::endl;
+    usleep(1000);
 }
 
 
@@ -16,8 +17,7 @@ int main() {
     for(int i = 0; i < 1000;i++) {
         mpool.submit(printfuc,i);
     }
-    sleep(3);
-    for(int i = 0; i < 10000;i++) {
+    for(int i = 1000; i < 2000;i++) {
         mpool.submit(printfuc,i);
     }
     mpool.shutdown();

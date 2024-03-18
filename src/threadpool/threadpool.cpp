@@ -1,5 +1,4 @@
-#include "./include/threadpool.h"
-#include "threadpool.h"
+#include "../include/threadpool.h"
 
 
 Threadpool::~Threadpool()
