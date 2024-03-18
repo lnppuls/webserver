@@ -3,7 +3,7 @@
 
 Threadpool::~Threadpool()
 {
-    if (is_active_) 
+    if (is_active_.load()) 
         this->shutdown();
 }
 
@@ -36,7 +36,7 @@ void Threadpool::worker()
             if(!works_.empty()) {
                 ret = works_.pop(task);
             } else {
-                if(!is_active_)
+                if(!is_active_.load())
                     break;
                 condition_.wait(lk);
             }

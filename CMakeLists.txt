@@ -5,6 +5,9 @@ project(Webserver)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+# add_compile_options(-g)
+
 set(TARGET_NAME webserver)
 set(TARGET_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -13,6 +16,5 @@ file(GLOB_RECURSE SOURCES "${TARGET_PATH}/*.cpp")
 
 # 添加头文件路径
 include_directories(${TARGET_PATH}/include)
-
 
 add_executable(${TARGET_NAME} ${SOURCES})

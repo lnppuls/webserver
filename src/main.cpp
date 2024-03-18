@@ -1,7 +1,8 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "include/threadpool.h"
+#include "include/webserver.h"
+
 
 using namespace std;
 
@@ -12,13 +13,7 @@ void printfuc(int s){
 
 
 int main() {
-    Threadpool mpool(8);
-    mpool.init_on();
-    for(int i = 0; i < 1000;i++) {
-        mpool.submit(printfuc,i);
-    }
-    for(int i = 1000; i < 2000;i++) {
-        mpool.submit(printfuc,i);
-    }
-    mpool.shutdown();
+    Webserver mweb;
+    mweb.init(8,1045);
+    mweb.init_server();
 }

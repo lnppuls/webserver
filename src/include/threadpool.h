@@ -1,4 +1,5 @@
 #pragma once
+
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -38,7 +39,7 @@ public:
     void worker();
 
 private:
-    WEBSER::safe_queue<std::function<void()>> works_;
+    UTILS::safe_queue<std::function<void()>> works_;
     std::vector<std::thread> threads_;
     int thread_num_;
     std::mutex lock_;
